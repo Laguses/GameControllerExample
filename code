@@ -1,0 +1,155 @@
+//even.component.ts
+import {Component, Input, OnInit} from '@angular/core';
+
+@Component({
+  selector: 'app-even',
+  templateUrl: './even.component.html',
+  styleUrls: ['./even.component.css']
+})
+export class EvenComponent implements OnInit {
+  @Input() evenNumber: number;
+
+  ngOnInit(): void {
+    console.log('EvenComponent() - ngOnInit - evenNumber: ' + this.evenNumber);
+  }
+
+}
+
+//even.component.css
+p{
+  color: green;
+}
+
+//even.component.html
+<p>
+  {{evenNumber}}
+</p>
+
+
+//--------------------------------
+
+
+//odd.component.ts
+import {Component, Input, OnInit} from '@angular/core';
+
+@Component({
+  selector: 'app-odd',
+  templateUrl: './odd.component.html',
+  styleUrls: ['./odd.component.css']
+})
+export class OddComponent implements OnInit {
+  @Input() oddNumber: number;
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+}
+
+//odd.component.css
+p {
+  color: brown;
+}
+
+//odd.component.html
+<p>
+  {{oddNumber}}
+</p>
+
+
+//--------------------------------
+
+
+//game-control.component.ts
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+
+@Component({
+  selector: 'app-game-controll',
+  templateUrl: './game-controll.component.html',
+  styleUrls: ['./game-controll.component.css']
+})
+export class GameControllComponent implements OnInit {
+
+  @Output() newNumber = new EventEmitter<Number>();
+  private isGameRunning = false;
+  private intervalRef;
+  private counter = 0;
+
+  constructor() {
+  }
+
+  ngOnInit() {
+  }
+
+  onStartGame() {
+    console.log('game started')
+    if (this.isGameRunning) {
+      return;
+    }
+    this.counter = 1
+    this.isGameRunning = true;
+    this.intervalRef = setInterval(() => {
+      console.log('emitted new number - counter:' + this.counter)
+
+      this.newNumber.emit(this.counter);
+      this.counter++;
+    }, 1000);
+  }
+
+  onStopGame() {
+    if (this.isGameRunning && this.intervalRef) {
+      console.log('game stopped!')
+
+      clearInterval(this.intervalRef);
+      this.isGameRunning = false;
+    }
+  }
+}
+
+//game-control.component.html
+<div class="row">
+  <div class="col-xs-4">
+    <button class="btn btn-primary" (click)="onStartGame()">Start Game</button>
+    <button class="btn btn-danger" (click)="onStopGame()">Stop Game</button>
+  </div>
+</div>
+
+
+//--------------------------------------
+
+//app-component.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  numbers = [];
+  onReceivedNewNumber(newNumber: number) {
+    console.log('onReceivedNewNumber() - number: ' + newNumber)
+    this.numbers.push(newNumber);
+  }
+}
+
+//app-component.html
+<div class="row">
+  <div class="col-xs-12">
+    <app-game-controll (newNumber)="onReceivedNewNumber($event)"></app-game-controll>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-xs-12">
+    <div *ngFor="let number of numbers">
+      <app-odd *ngIf="number % 2 != 0" [oddNumber]="number"></app-odd>
+      <app-even *ngIf="number % 2 == 0" [evenNumber]="number"></app-even>
+    </div>
+  </div>
+</div>
+
+
+
+
+
